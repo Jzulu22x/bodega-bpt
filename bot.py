@@ -1,5 +1,5 @@
 import os
-import pandas as pd
+import csv as pd
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
