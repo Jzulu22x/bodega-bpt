@@ -1,7 +1,8 @@
 import os
 import csv
+import asyncio
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
 TOKEN = os.environ.get("TOKEN")
 CSV_PATH = "referencias.csv"
@@ -19,10 +20,10 @@ def cargar():
 
 datos = cargar()
 
-def start(update, context):
-    update.message.reply_text("BodegaBot activo. Enviame la referencia. Ejemplo: GM-566")
+async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("BodegaBot activo. Enviame la referencia. Ejemplo: GM-566")
 
-def buscar(update, context):
+async def buscar(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     ref = update.message.text.strip().upper()
     if ref in datos:
         zona = datos[ref]
@@ -35,11 +36,9 @@ def buscar(update, context):
             respuesta = f"Producto: {ref}\nBodega: {bodega}\nZona: {nzona}"
     else:
         respuesta = f"Referencia {ref} no encontrada."
-    update.message.reply_text(respuesta)
+    await update.message.reply_text(respuesta)
 
-updater = Updater(TOKEN)
-dp = updater.dispatcher
-dp.add_handler(CommandHandler("start", start))
-dp.add_handler(MessageHandler(Filters.text & ~Filters.command, buscar))
-updater.start_polling()
-updater.idle()
+app = ApplicationBuilder().token(TOKEN).build()
+app.add_handler(CommandHandler("start", start))
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, buscar))
+app.run_polling()
