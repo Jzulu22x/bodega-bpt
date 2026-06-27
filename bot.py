@@ -38,7 +38,14 @@ async def buscar(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         respuesta = f"Referencia {ref} no encontrada."
     await update.message.reply_text(respuesta)
 
-app = ApplicationBuilder().token(TOKEN).build()
-app.add_handler(CommandHandler("start", start))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, buscar))
-app.run_polling()
+async def main():
+    app = ApplicationBuilder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, buscar))
+    await app.initialize()
+    await app.start()
+    await app.updater.start_polling()
+    await asyncio.Event().wait()
+
+if __name__ == "__main__":
+    asyncio.run(main())
